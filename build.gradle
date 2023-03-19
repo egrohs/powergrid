@@ -7,7 +7,7 @@ plugins {
 group = 'backend-rest'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
-
+	
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -21,6 +21,7 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

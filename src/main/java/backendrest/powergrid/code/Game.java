@@ -1,9 +1,9 @@
 package backendrest.powergrid.code;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -35,28 +35,42 @@ public class Game {
 		gs.setDeck(deck);
 	}
 
+	/*
+	 * p=null considera como a primeira cidade, sem adjacencias necessarias.
+	 */
 	public Integer getMinPathCost(Player p, City c) {
-		int minCost = Integer.MAX_VALUE;
+		List<City> adjs = List.of(City.values());
+		if (p != null)
+			adjs = p.getCities();// .stream().map(city -> city.ordinal()).collect(Collectors.toList());
+
+		Integer minCost = 2000000;
 		Integer[][] g = Components.graph;
 		// procura na linha
-		for (Integer v : g[c.ordinal()]) {
-			if (v != null && minCost > v)
+		for (int j = 0; j < g.length; j++) {
+			Integer v = g[c.ordinal()][j];
+			if (v != null && minCost > v
+					&& adjs.stream().map(city -> city.ordinal()).collect(Collectors.toList()).contains(j)) {
 				minCost = v;
+			}
 		}
+//		for (Integer v : g[c.ordinal()]) {
+//			if (v != null && minCost > v && p.getCities().contains(v))
+//				minCost = v;
+//		}
 		// procura na coluna
-		Integer[] col = Arrays.stream(g)
-				.map(i -> g[i][c.ordinal()])
-				//.map(x -> x[address])
-				.toArray(Integer[]::new);
-		for (Integer v : col) {
-			if (v != null && minCost > v)
+		for (int i = 0; i < g.length; i++) {
+			Integer v = g[i][c.ordinal()];
+			if (v != null && minCost > v
+					&& adjs.stream().map(city -> city.ordinal()).collect(Collectors.toList()).contains(i)) {
 				minCost = v;
+			}
 		}
+
 		return minCost;
 	}
-	
+
 	public static void main(String[] args) {
 		Game g = new Game();
-		System.out.println(g.getMinPathCost(null, City.ESSEN));
+		System.out.println(g.getMinPathCost(new Player(""), City.FRANKFURT_D));
 	}
 }

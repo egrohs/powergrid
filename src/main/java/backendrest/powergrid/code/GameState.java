@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 public class GameState {
-	List<Integer> regions;
+	List<Integer> regions = List.of(1,2,3,4,5,6);
 //	Step 2: Starts after any player has built his 7th city.
 	int step = 1;
 //graph??
