@@ -24,8 +24,8 @@ public class Game {
 			pls.add(new Player(n));
 		}
 		Collections.shuffle(pls);
-		gs = new GameState();
-		gs.setTurnOrder(pls);
+		gs = new GameState(pls);
+		//gs.setTurnOrder(pls);
 		gs.setActualMarket(new ArrayList<>(Components.plants.subList(0, 4)));
 		gs.setFutureMarket(new ArrayList<>(Components.plants.subList(4, 8)));
 		List<Plant> deck = new ArrayList<>(Components.plants.subList(8, 41));
@@ -71,6 +71,9 @@ public class Game {
 
 	public static void main(String[] args) {
 		Game g = new Game();
-		System.out.println(g.getMinPathCost(new Player(""), City.FRANKFURT_D));
+		g.init(List.of("p1", "p2"));
+		System.out.println(g.getMinPathCost(null, City.ESSEN));
+		// System.out.println(Components.plants.get(27));
+		System.out.println(g);
 	}
 }
