@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GameRest {
 	// public static final String URL_PREFIX = "/api/v1";
 	@Autowired
-	Game g;
+	public Game g;
 //	@PatchMapping("/atualiza-bens")
 //	@Operation(summary = "Efetua o salvamento do arrolamento alterando seus bens.")
 //	@ResponseBody
@@ -39,29 +39,31 @@ public class GameRest {
 
 	@GetMapping("/init")
 	@ResponseBody
-	void initGame(@NotNull @RequestParam(value = "myParam[]") List<String> pNames) {
+	public void initGame(@NotNull @RequestParam(value = "myParam[]") List<String> pNames) {
 		g.init(pNames);
 	}
 
 	int cityCost(Player p, City dest) {
-		return 5 + g.getGs().getStep() * 5 + g.getMinPathCost(p, dest);
+		return 5 + g.getGs().getStep() * 5 + g.getMinPathCost(p, dest, false);
 	}
 
-	@PostMapping("/power")
+	@PostMapping("/buy-city")
 	@ResponseBody
-	Player powerCity(@RequestParam("pname") String pname, @RequestParam("city") City city) {
-		Player p = g.getGs().getTurnOrder().get(0);
-		// TODO ver se player tem alguma adjacencia antes...
+	public Player buyCity(@RequestParam("pname") String pname, @RequestParam("city") City city,
+			@RequestParam("firstCity") boolean firstCity) {
+		Player player = g.getGs().getTurnOrder().stream().filter(p -> pname.equals(p.getName())).findFirst().get();
 		if (!g.getGs().getRegions().contains(city.region))
 			throw new RuntimeException("City out of valid regions.");
-		if (p.getCities().contains(city))
+		if (player.getCities().contains(city))
 			throw new RuntimeException("City already powered by this player.");
-		int cityCost = 5 + g.getGs().getStep() * 5 + g.getMinPathCost(p, city);
-		if (cityCost > p.getMoney())
-			throw new RuntimeException("No money.");
-		p.setMoney(p.getMoney() - cityCost);
-		p.getCities().add(city);
-		return p;
+		int owners = (int) g.getGs().turnOrder.stream().filter(p -> p.getCities().contains(city)).count();
+		int cityCost = firstCity ? 0 : 10 + owners * 5 + g.getMinPathCost(player, city, firstCity);
+//		if (cityCost > player.getMoney())
+//			throw new RuntimeException(
+//					"Player " + pname + " money " + player.getMoney() + " has no sufficient money " + cityCost);
+		player.pay(cityCost);
+		player.getCities().add(city);
+		return player;
 	}
 
 	@GetMapping("/porder")
@@ -71,9 +73,17 @@ public class GameRest {
 		return new int[6];
 	}
 
-	void bid(Player p, Integer value) {
+	@GetMapping("/bid")
+	@ResponseBody
+	public void bid(Player p, Plant plant, Integer value) {
+		// TODO onde armazenar esse trio? lista bids no game, gs, PLANT!, player?
+		if (g.gs.step != 3 && g.gs.market.indexOf(plant) > 3)
+			throw new RuntimeException("Plant belongs to future market.");
 	}
 
-	void buyResource(Plant_Type resource, int qnt) {
+	@GetMapping("/resource")
+	@ResponseBody
+	public void buyResource(Player p, Plant_Type resource, int qnt) {
+
 	}
 }

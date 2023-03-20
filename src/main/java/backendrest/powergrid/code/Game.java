@@ -25,9 +25,9 @@ public class Game {
 		}
 		Collections.shuffle(pls);
 		gs = new GameState(pls);
-		//gs.setTurnOrder(pls);
-		gs.setActualMarket(new ArrayList<>(Components.plants.subList(0, 4)));
-		gs.setFutureMarket(new ArrayList<>(Components.plants.subList(4, 8)));
+		// gs.setTurnOrder(pls);
+		gs.setMarket(new ArrayList<>(Components.plants.subList(0, 8)));
+		//gs.setFutureMarket(new ArrayList<>(Components.plants.subList(4, 8)));
 		List<Plant> deck = new ArrayList<>(Components.plants.subList(8, 41));
 		Plant p13 = deck.remove(2);
 		Collections.shuffle(deck);
@@ -35,45 +35,64 @@ public class Game {
 		gs.setDeck(deck);
 	}
 
-	/*
-	 * p=null considera como a primeira cidade, sem adjacencias necessarias.
-	 */
-	public Integer getMinPathCost(Player p, City c) {
-		List<City> adjs = List.of(City.values());
-		if (p != null)
-			adjs = p.getCities();// .stream().map(city -> city.ordinal()).collect(Collectors.toList());
-
-		Integer minCost = 2000000;
-		Integer[][] g = Components.graph;
-		// procura na linha
-		for (int j = 0; j < g.length; j++) {
-			Integer v = g[c.ordinal()][j];
-			if (v != null && minCost > v
-					&& adjs.stream().map(city -> city.ordinal()).collect(Collectors.toList()).contains(j)) {
-				minCost = v;
-			}
+	// TODO incompleto
+	public Player buyResource(Player p, Plant plant, Plant_Type resource, int qnt) {
+		Integer res = null;
+		int price = 0;
+		switch (resource) {
+		case URANIUM: {
+			res = gs.uranium;
+			price = res < 6 ? 18 - (res * 2) : res;
+			// yield type;
 		}
+		case COAL: {
+			res = gs.coal;
+			price = (int) (9 - Math.ceil((double) gs.coal / 3));
+		}
+		default:
+			// throw new IllegalArgumentException("Unexpected value: " + resource);
+		}
+
+		if (res < qnt) {
+			throw new RuntimeException("Not enought resources.");
+		}
+		do {
+			p.pay(price);
+			res--;
+			plant.store(resource, qnt);
+			qnt--;
+		} while (qnt > 0);
+		return p;
+	}
+
+	// TODO recursive
+	public Integer getMinPathCost(Player p, City c, boolean firstCity) {
+		if (!firstCity) {
+			List<City> adjs = p.getCities();// .stream().map(city -> city.ordinal()).collect(Collectors.toList());
+			Integer minCost = 2000000;
+			Integer[][] g = Components.graph;
+			// procura na linha
+			for (int j = 0; j < g.length; j++) {
+				Integer v = g[c.ordinal()][j];
+				if (v != null && minCost > v
+						&& adjs.stream().map(city -> city.ordinal()).collect(Collectors.toList()).contains(j)) {
+					minCost = v;
+				}
+			}
 //		for (Integer v : g[c.ordinal()]) {
 //			if (v != null && minCost > v && p.getCities().contains(v))
 //				minCost = v;
 //		}
-		// procura na coluna
-		for (int i = 0; i < g.length; i++) {
-			Integer v = g[i][c.ordinal()];
-			if (v != null && minCost > v
-					&& adjs.stream().map(city -> city.ordinal()).collect(Collectors.toList()).contains(i)) {
-				minCost = v;
+			// procura na coluna
+			for (int i = 0; i < g.length; i++) {
+				Integer v = g[i][c.ordinal()];
+				if (v != null && minCost > v
+						&& adjs.stream().map(city -> city.ordinal()).collect(Collectors.toList()).contains(i)) {
+					minCost = v;
+				}
 			}
-		}
-
-		return minCost;
-	}
-
-	public static void main(String[] args) {
-		Game g = new Game();
-		g.init(List.of("p1", "p2"));
-		System.out.println(g.getMinPathCost(null, City.ESSEN));
-		// System.out.println(Components.plants.get(27));
-		System.out.println(g);
+			return minCost;
+		} // p.getCities().add(c);
+		return 0;
 	}
 }
