@@ -25,11 +25,28 @@ public class Plant {
 	private HashMap<Plant_Type, Integer> storage;
 
 	public void bid(Player p, Integer val) {
-		lastBids.put(p, val);
+		if (p.isPassedPlant() || p.isBoughtPlant() || p.isOutOfAuctions())
+			throw new RuntimeException("player cannot bid.");
+		if (val == null || val == 0) {
+			p.setPassedPlant(true);
+		} else {
+			if (val < initCost)
+				throw new RuntimeException("bid lower than init cost.");
+			Entry<Player, Integer> bid = highestBid();
+			if (bid != null) {
+				int v = bid.getValue();
+				// if (v != 0) {
+				if (val <= v)
+					throw new RuntimeException("bid too low.");
+				// }
+			}
+			lastBids.put(p, val);
+		}
 	}
 
 	public Entry<Player, Integer> highestBid() {
-		return lastBids.entrySet().stream().max(Comparator.comparing(Map.Entry::getValue)).get();
+		return lastBids.size() > 0 ? lastBids.entrySet().stream().max(Comparator.comparing(Map.Entry::getValue)).get()
+				: null;
 	}
 
 	public boolean store(Plant_Type resType, int qnt) {

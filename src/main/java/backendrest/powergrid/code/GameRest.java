@@ -43,6 +43,20 @@ public class GameRest {
 		g.init(pNames);
 	}
 
+	@GetMapping("/bid")
+	@ResponseBody
+	public void bid(String pname, Integer idPlant, Integer value) {
+		Player p = g.gs.getPlayerByName(pname);
+		p.canPay(value);
+		if (p.isBoughtPlant())
+			throw new RuntimeException("Player already bought");
+		Plant pl = Components.getPlantById(idPlant);
+		if (g.gs.step != 3 && g.gs.market.indexOf(pl) > 3)
+			throw new RuntimeException("Plant belongs to future market.");
+		pl.bid(p, value);
+		g.trySell(pl);
+	}
+
 	int cityCost(Player p, City dest) {
 		return 5 + g.getGs().getStep() * 5 + g.getMinPathCost(p, dest, false);
 	}
@@ -51,7 +65,7 @@ public class GameRest {
 	@ResponseBody
 	public Player buyCity(@RequestParam("pname") String pname, @RequestParam("city") City city,
 			@RequestParam("firstCity") boolean firstCity) {
-		Player player = g.getGs().getTurnOrder().stream().filter(p -> pname.equals(p.getName())).findFirst().get();
+		Player player = g.gs.getPlayerByName(pname);
 		if (!g.getGs().getRegions().contains(city.region))
 			throw new RuntimeException("City out of valid regions.");
 		if (player.getCities().contains(city))
@@ -71,14 +85,6 @@ public class GameRest {
 	int[] playerOrder() {
 		log.debug("passou");
 		return new int[6];
-	}
-
-	@GetMapping("/bid")
-	@ResponseBody
-	public void bid(Player p, Plant plant, Integer value) {
-		// TODO onde armazenar esse trio? lista bids no game, gs, PLANT!, player?
-		if (g.gs.step != 3 && g.gs.market.indexOf(plant) > 3)
-			throw new RuntimeException("Plant belongs to future market.");
 	}
 
 	@GetMapping("/resource")

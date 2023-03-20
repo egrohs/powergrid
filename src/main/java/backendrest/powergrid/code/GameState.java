@@ -61,4 +61,8 @@ public class GameState {
 		sb.append(scoreTrack.toString() + "\n");
 		return sb.toString();
 	}
+
+	public Player getPlayerByName(String pname) {
+		return getTurnOrder().stream().filter(p -> pname.equals(p.getName())).findFirst().get();
+	}
 }

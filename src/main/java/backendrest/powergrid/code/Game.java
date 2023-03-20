@@ -27,12 +27,20 @@ public class Game {
 		gs = new GameState(pls);
 		// gs.setTurnOrder(pls);
 		gs.setMarket(new ArrayList<>(Components.plants.subList(0, 8)));
-		//gs.setFutureMarket(new ArrayList<>(Components.plants.subList(4, 8)));
+		// gs.setFutureMarket(new ArrayList<>(Components.plants.subList(4, 8)));
 		List<Plant> deck = new ArrayList<>(Components.plants.subList(8, 41));
 		Plant p13 = deck.remove(2);
 		Collections.shuffle(deck);
 		deck.add(0, p13);
 		gs.setDeck(deck);
+	}
+
+	public void trySell(Plant pl) {
+		List<Player> auctionners = gs.turnOrder.stream()
+				.filter(p -> !p.isBoughtPlant() && !p.isPassedPlant() && !p.isOutOfAuctions()).toList();
+		if (auctionners.size() == 1) {
+			auctionners.get(0).buyPlant(pl);
+		}
 	}
 
 	// TODO incompleto
