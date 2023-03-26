@@ -15,9 +15,12 @@ import lombok.ToString;
 @EqualsAndHashCode(of = "name", callSuper = false)
 @NoArgsConstructor
 @ToString
-public class Player implements Serializable {
+public class Player extends Image {//implements Serializable {
 	public Player(String n) {
 		name = n;
+		this.src = "piao.jpg";
+		this.x = 5;
+		this.y = 5;
 	}
 
 	private String name;// id
@@ -34,7 +37,7 @@ public class Player implements Serializable {
 		}
 		return true;
 	}
-	
+
 	public void pay(int v) {
 		canPay(v);
 		money -= v;

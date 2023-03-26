@@ -17,7 +17,7 @@ public class Game {
 //	Components components;// TODO ou seria static?
 	GameState gs;
 
-	public void init(@NotNull List<String> pNames) {
+	public GameState init(@NotNull List<String> pNames) {
 		// setup
 		List<Player> pls = new ArrayList<>();
 		for (String n : pNames) {
@@ -33,6 +33,7 @@ public class Game {
 		Collections.shuffle(deck);
 		deck.add(0, p13);
 		gs.setDeck(deck);
+		return gs;
 	}
 
 	public void trySell(Plant pl) {

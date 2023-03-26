@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -30,17 +31,18 @@ public class GameRest {
 //		return servico.associarBensRpfs(ni, idArrl, bens, null, null);
 //	}
 
-	@GetMapping("/")
-	// @ResponseBody
+//	@GetMapping("/")
+	@RequestMapping("/")// @ResponseBody
 	public String asd(Model model) {
-		model.addAttribute("valor", "blah");
+		model.addAttribute("board", g.init(List.of("p1","p2")));
+	    //return "init";
 		return "hello";
 	}
 
 	@GetMapping("/init")
 	@ResponseBody
-	public void initGame(@NotNull @RequestParam(value = "myParam[]") List<String> pNames) {
-		g.init(pNames);
+	public GameState initGame(@NotNull @RequestParam(value = "myParam[]") List<String> pNames) {
+		return g.init(pNames);
 	}
 
 	@GetMapping("/bid")

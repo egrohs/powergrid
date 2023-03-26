@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import lombok.Data;
 
 @Data
-public class GameState {
+public class GameState extends Image {
 	List<Integer> regions = List.of(1, 2, 3, 4, 5, 6);
 //	Step 2: Starts after any player has built his 7th city.
 	int step = 1, turn;
@@ -25,6 +25,8 @@ public class GameState {
 	Map<Player, Integer> scoreTrack = new HashMap<>();
 
 	public GameState(List<Player> pls) {
+		this.src = "powergrid.jpg";
+		//this.style = "'background-image:url('+@{/powergrid.jpg}+');  background-size: 100% 100%;  background-repeat:no-repeat;  background-attachment: fixed; ";
 		turnOrder = pls;
 		pls.forEach(p -> scoreTrack.put(p, 0));
 	}
