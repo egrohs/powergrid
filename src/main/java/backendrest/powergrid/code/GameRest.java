@@ -3,11 +3,14 @@ package backendrest.powergrid.code;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -23,6 +26,9 @@ public class GameRest {
 	// public static final String URL_PREFIX = "/api/v1";
 	@Autowired
 	public Game g;
+
+	@Autowired
+	SimpMessagingTemplate simpMessagingTemplate;
 //	@PatchMapping("/atualiza-bens")
 //	@Operation(summary = "Efetua o salvamento do arrolamento alterando seus bens.")
 //	@ResponseBody
@@ -31,16 +37,29 @@ public class GameRest {
 //		return servico.associarBensRpfs(ni, idArrl, bens, null, null);
 //	}
 
-//	@GetMapping("/")
-	@RequestMapping("/")// @ResponseBody
+	@GetMapping("/")
+//	@RequestMapping("/")
+	// @ResponseBody
 	public String asd(Model model) {
-		model.addAttribute("board", g.init(List.of("p1","p2")));
-	    //return "init";
+		model.addAttribute("board", g.init(List.of("p1", "p2")));
+		// return "init";
 		return "hello";
 	}
 
-	@GetMapping("/init")
-	@ResponseBody
+	@MessageMapping("/myendpoint")
+	@SendTo("/topic/msgs")
+	public GameState asd() {
+		System.out.println("asd");
+		return g.gs;
+	}
+
+//	@MessageMapping("/news")
+//	public void broadcastNews(@Payload GameState message) {
+//	  this.simpMessagingTemplate.convertAndSend("/topic/news", g.gs);
+//	}
+
+	// @GetMapping("/init")
+	// @ResponseBody
 	public GameState initGame(@NotNull @RequestParam(value = "myParam[]") List<String> pNames) {
 		return g.init(pNames);
 	}
